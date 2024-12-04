@@ -26,3 +26,8 @@ CONFIG_CHAT_HISTORY_BROWSER_ENABLED = "chat_history_browser_enabled"
 CONFIG_CHAT_HISTORY_COSMOS_ENABLED = "chat_history_cosmos_enabled"
 CONFIG_COSMOS_HISTORY_CLIENT = "cosmos_history_client"
 CONFIG_COSMOS_HISTORY_CONTAINER = "cosmos_history_container"
+# multi-index-geo changes
+CONFIG_ASK_APPROACHES = "ask_approaches" 
+CONFIG_ASK_VISION_APPROACHES = "ask_vision_approaches"
+CONFIG_CHAT_APPROACHES = "chat_approaches"
+CONFIG_CHAT_VISION_APPROACHES = "chat_vision_approaches"

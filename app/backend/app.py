@@ -80,6 +80,10 @@ from config import (
     CONFIG_USER_BLOB_CONTAINER_CLIENT,
     CONFIG_USER_UPLOAD_ENABLED,
     CONFIG_VECTOR_SEARCH_ENABLED,
+    CONFIG_ASK_APPROACHES,            # multi-index-geo changes
+    CONFIG_ASK_VISION_APPROACHES,     # multi-index-geo changes
+    CONFIG_CHAT_APPROACHES,           # multi-index-geo changes 
+    CONFIG_CHAT_VISION_APPROACHES,    # multi-index-geo changes
 )
 from core.authentication import AuthenticationHelper
 from core.sessionhelper import create_session_id
@@ -173,15 +177,28 @@ async def ask(auth_claims: Dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
+    x_geo_location = request.headers.get("x-geo-location", "default") # multi-index-geo changes 
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
+    
+    # multi-index-geo changes - begins
+    # Retrieve pre-initialized SearchClient and Approach
+    ask_approaches = current_app.config["CONFIG_ASK_APPROACHES"]
+    ask_approach = ask_approaches.get(x_geo_location)       
+    # multi-index-geo changes - ends
+
     try:
         use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
         approach: Approach
-        if use_gpt4v and CONFIG_ASK_VISION_APPROACH in current_app.config:
-            approach = cast(Approach, current_app.config[CONFIG_ASK_VISION_APPROACH])
+        if use_gpt4v and CONFIG_ASK_VISION_APPROACHES in current_app.config:            # multi-index-geo changes
+        # if use_gpt4v and CONFIG_ASK_VISION_APPROACH in current_app.config:            # multi-index-geo changes
+            # approach = cast(Approach, current_app.config[CONFIG_ASK_VISION_APPROACH]) # multi-index-geo changes
+            ask_vision_approaches = current_app.config["CONFIG_ASK_VISION_APPROACHES"]  # multi-index-geo changes
+            ask_vision_approach = ask_vision_approaches.get(x_geo_location)             # multi-index-geo changes
+            approach = cast(Approach, ask_vision_approach)                              # multi-index-geo changes
         else:
-            approach = cast(Approach, current_app.config[CONFIG_ASK_APPROACH])
+            # approach = cast(Approach, current_app.config[CONFIG_ASK_APPROACH])
+            approach = cast(Approach, ask_approach) # multi-index-geo changes
         r = await approach.run(
             request_json["messages"], context=context, session_state=request_json.get("session_state")
         )
@@ -212,15 +229,28 @@ async def chat(auth_claims: Dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
+    x_geo_location = request.headers.get("x-geo-location", "default") # multi-index-geo changes
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
+
+    # multi-index-geo changes - begins
+    # Retrieve pre-initialized SearchClient and Approach
+    chat_approaches = current_app.config["CONFIG_CHAT_APPROACHES"]
+    chat_approach = chat_approaches.get(x_geo_location)       
+    # multi-index-geo changes - ends
+
     try:
         use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
         approach: Approach
-        if use_gpt4v and CONFIG_CHAT_VISION_APPROACH in current_app.config:
-            approach = cast(Approach, current_app.config[CONFIG_CHAT_VISION_APPROACH])
+        if use_gpt4v and CONFIG_CHAT_VISION_APPROACHES in current_app.config:               # multi-index-geo changes
+        # if use_gpt4v and CONFIG_CHAT_VISION_APPROACH in current_app.config:               # multi-index-geo changes
+            # approach = cast(Approach, current_app.config[CONFIG_CHAT_VISION_APPROACH])    # multi-index-geo changes
+            chat_vision_approaches = current_app.config["CONFIG_CHAT_VISION_APPROACHES"]    # multi-index-geo changes
+            chat_vision_approach = chat_vision_approaches.get(x_geo_location)               # multi-index-geo changes
+            approach = cast(Approach, chat_vision_approach)                                 # multi-index-geo changes
         else:
-            approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
+            # approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
+            approach = cast(Approach, chat_approach) # multi-index-geo changes
 
         # If session state is provided, persists the session state,
         # else creates a new session_id depending on the chat history options enabled.
@@ -246,15 +276,28 @@ async def chat_stream(auth_claims: Dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
+    x_geo_location = request.headers.get("x-geo-location", "default") # multi-index-geo changes
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
+    
+    # multi-index-geo changes - begins
+    # Retrieve pre-initialized SearchClient and Approach
+    chat_approaches = current_app.config["CONFIG_CHAT_APPROACHES"]
+    chat_approach = chat_approaches.get(x_geo_location)
+    # multi-index-geo changes - ends
+
     try:
         use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
         approach: Approach
-        if use_gpt4v and CONFIG_CHAT_VISION_APPROACH in current_app.config:
-            approach = cast(Approach, current_app.config[CONFIG_CHAT_VISION_APPROACH])
+        if use_gpt4v and CONFIG_CHAT_VISION_APPROACHES in current_app.config:               # multi-index-geo changes
+        # if use_gpt4v and CONFIG_CHAT_VISION_APPROACH in current_app.config:               # multi-index-geo changes
+            # approach = cast(Approach, current_app.config[CONFIG_CHAT_VISION_APPROACH])    # multi-index-geo changes
+            chat_vision_approaches = current_app.config["CONFIG_CHAT_VISION_APPROACHES"]    # multi-index-geo changes
+            chat_vision_approach = chat_vision_approaches.get(x_geo_location)               # multi-index-geo changes
+            approach = cast(Approach, chat_vision_approach)                                 # multi-index-geo changes
         else:
-            approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
+            # approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
+            approach = cast(Approach, chat_approach) # multi-index-geo changes
 
         # If session state is provided, persists the session state,
         # else creates a new session_id depending on the chat history options enabled.
@@ -414,7 +457,7 @@ async def setup_clients():
     AZURE_USERSTORAGE_ACCOUNT = os.environ.get("AZURE_USERSTORAGE_ACCOUNT")
     AZURE_USERSTORAGE_CONTAINER = os.environ.get("AZURE_USERSTORAGE_CONTAINER")
     AZURE_SEARCH_SERVICE = os.environ["AZURE_SEARCH_SERVICE"]
-    AZURE_SEARCH_INDEX = os.environ["AZURE_SEARCH_INDEX"]
+    AZURE_SEARCH_INDEX = os.environ["AZURE_SEARCH_INDEX"] #check-here
     # Shared by all OpenAI deployments
     OPENAI_HOST = os.getenv("OPENAI_HOST", "azure")
     OPENAI_CHATGPT_MODEL = os.environ["AZURE_OPENAI_CHATGPT_MODEL"]
@@ -642,73 +685,114 @@ async def setup_clients():
     current_app.config[CONFIG_CHAT_HISTORY_BROWSER_ENABLED] = USE_CHAT_HISTORY_BROWSER
     current_app.config[CONFIG_CHAT_HISTORY_COSMOS_ENABLED] = USE_CHAT_HISTORY_COSMOS
 
+    
+    # multi-index-geo changes - begins
+    
     # Various approaches to integrate GPT and external knowledge, most applications will use a single one of these patterns
     # or some derivative, here we include several for exploration purposes
-    current_app.config[CONFIG_ASK_APPROACH] = RetrieveThenReadApproach(
-        search_client=search_client,
-        openai_client=openai_client,
-        auth_helper=auth_helper,
-        chatgpt_model=OPENAI_CHATGPT_MODEL,
-        chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
-        embedding_model=OPENAI_EMB_MODEL,
-        embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
-        embedding_dimensions=OPENAI_EMB_DIMENSIONS,
-        sourcepage_field=KB_FIELDS_SOURCEPAGE,
-        content_field=KB_FIELDS_CONTENT,
-        query_language=AZURE_SEARCH_QUERY_LANGUAGE,
-        query_speller=AZURE_SEARCH_QUERY_SPELLER,
-    )
+    
+    # current_app.config[CONFIG_ASK_APPROACH] = RetrieveThenReadApproach(
+    #     search_client=search_client,
+    #     openai_client=openai_client,
+    #     auth_helper=auth_helper,
+    #     chatgpt_model=OPENAI_CHATGPT_MODEL,
+    #     chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
+    #     embedding_model=OPENAI_EMB_MODEL,
+    #     embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
+    #     embedding_dimensions=OPENAI_EMB_DIMENSIONS,
+    #     sourcepage_field=KB_FIELDS_SOURCEPAGE,
+    #     content_field=KB_FIELDS_CONTENT,
+    #     query_language=AZURE_SEARCH_QUERY_LANGUAGE,
+    #     query_speller=AZURE_SEARCH_QUERY_SPELLER,
+    # )
 
-    current_app.config[CONFIG_CHAT_APPROACH] = ChatReadRetrieveReadApproach(
-        search_client=search_client,
-        openai_client=openai_client,
-        auth_helper=auth_helper,
-        chatgpt_model=OPENAI_CHATGPT_MODEL,
-        chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
-        embedding_model=OPENAI_EMB_MODEL,
-        embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
-        embedding_dimensions=OPENAI_EMB_DIMENSIONS,
-        sourcepage_field=KB_FIELDS_SOURCEPAGE,
-        content_field=KB_FIELDS_CONTENT,
-        query_language=AZURE_SEARCH_QUERY_LANGUAGE,
-        query_speller=AZURE_SEARCH_QUERY_SPELLER,
-    )
+    # current_app.config[CONFIG_CHAT_APPROACH] = ChatReadRetrieveReadApproach(
+    #     search_client=search_client,
+    #     openai_client=openai_client,
+    #     auth_helper=auth_helper,
+    #     chatgpt_model=OPENAI_CHATGPT_MODEL,
+    #     chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
+    #     embedding_model=OPENAI_EMB_MODEL,
+    #     embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
+    #     embedding_dimensions=OPENAI_EMB_DIMENSIONS,
+    #     sourcepage_field=KB_FIELDS_SOURCEPAGE,
+    #     content_field=KB_FIELDS_CONTENT,
+    #     query_language=AZURE_SEARCH_QUERY_LANGUAGE,
+    #     query_speller=AZURE_SEARCH_QUERY_SPELLER,
+    # )
 
-    if USE_GPT4V:
-        current_app.logger.info("USE_GPT4V is true, setting up GPT4V approach")
-        if not AZURE_OPENAI_GPT4V_MODEL:
-            raise ValueError("AZURE_OPENAI_GPT4V_MODEL must be set when USE_GPT4V is true")
-        token_provider = get_bearer_token_provider(azure_credential, "https://cognitiveservices.azure.com/.default")
+    # if USE_GPT4V:
+    #     current_app.logger.info("USE_GPT4V is true, setting up GPT4V approach")
+    #     if not AZURE_OPENAI_GPT4V_MODEL:
+    #         raise ValueError("AZURE_OPENAI_GPT4V_MODEL must be set when USE_GPT4V is true")
+    #     token_provider = get_bearer_token_provider(azure_credential, "https://cognitiveservices.azure.com/.default")
 
-        current_app.config[CONFIG_ASK_VISION_APPROACH] = RetrieveThenReadVisionApproach(
-            search_client=search_client,
-            openai_client=openai_client,
-            blob_container_client=blob_container_client,
-            auth_helper=auth_helper,
-            vision_endpoint=AZURE_VISION_ENDPOINT,
-            vision_token_provider=token_provider,
-            gpt4v_deployment=AZURE_OPENAI_GPT4V_DEPLOYMENT,
-            gpt4v_model=AZURE_OPENAI_GPT4V_MODEL,
-            embedding_model=OPENAI_EMB_MODEL,
-            embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
-            embedding_dimensions=OPENAI_EMB_DIMENSIONS,
-            sourcepage_field=KB_FIELDS_SOURCEPAGE,
-            content_field=KB_FIELDS_CONTENT,
-            query_language=AZURE_SEARCH_QUERY_LANGUAGE,
-            query_speller=AZURE_SEARCH_QUERY_SPELLER,
+    #     current_app.config[CONFIG_ASK_VISION_APPROACH] = RetrieveThenReadVisionApproach(
+    #         search_client=search_client,
+    #         openai_client=openai_client,
+    #         blob_container_client=blob_container_client,
+    #         auth_helper=auth_helper,
+    #         vision_endpoint=AZURE_VISION_ENDPOINT,
+    #         vision_token_provider=token_provider,
+    #         gpt4v_deployment=AZURE_OPENAI_GPT4V_DEPLOYMENT,
+    #         gpt4v_model=AZURE_OPENAI_GPT4V_MODEL,
+    #         embedding_model=OPENAI_EMB_MODEL,
+    #         embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
+    #         embedding_dimensions=OPENAI_EMB_DIMENSIONS,
+    #         sourcepage_field=KB_FIELDS_SOURCEPAGE,
+    #         content_field=KB_FIELDS_CONTENT,
+    #         query_language=AZURE_SEARCH_QUERY_LANGUAGE,
+    #         query_speller=AZURE_SEARCH_QUERY_SPELLER,
+    #     )
+
+    #     current_app.config[CONFIG_CHAT_VISION_APPROACH] = ChatReadRetrieveReadVisionApproach(
+    #         search_client=search_client,
+    #         openai_client=openai_client,
+    #         blob_container_client=blob_container_client,
+    #         auth_helper=auth_helper,
+    #         vision_endpoint=AZURE_VISION_ENDPOINT,
+    #         vision_token_provider=token_provider,
+    #         chatgpt_model=OPENAI_CHATGPT_MODEL,
+    #         chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
+    #         gpt4v_deployment=AZURE_OPENAI_GPT4V_DEPLOYMENT,
+    #         gpt4v_model=AZURE_OPENAI_GPT4V_MODEL,
+    #         embedding_model=OPENAI_EMB_MODEL,
+    #         embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
+    #         embedding_dimensions=OPENAI_EMB_DIMENSIONS,
+    #         sourcepage_field=KB_FIELDS_SOURCEPAGE,
+    #         content_field=KB_FIELDS_CONTENT,
+    #         query_language=AZURE_SEARCH_QUERY_LANGUAGE,
+    #         query_speller=AZURE_SEARCH_QUERY_SPELLER,
+    #     )
+
+    geo_index_map = {
+        "default" : AZURE_SEARCH_INDEX,
+        "us" : f"{AZURE_SEARCH_INDEX}_us",
+        "eu" : f"{AZURE_SEARCH_INDEX}_eu",
+        "asia" : f"{AZURE_SEARCH_INDEX}_asia"
+        # Add more mappings as required
+    }
+    search_clients = {} 
+    ask_approaches = {}
+    chat_approaches = {}
+    ask_vision_approaches = {}
+    chat_vision_approaches = {}
+
+    for geo_location, index_name in geo_index_map.items():
+        
+        search_client = SearchClient(
+            endpoint=f"https://{AZURE_SEARCH_SERVICE}.search.windows.net",
+            index_name=index_name,
+            credential=azure_credential,
         )
-
-        current_app.config[CONFIG_CHAT_VISION_APPROACH] = ChatReadRetrieveReadVisionApproach(
+        search_clients[geo_location] = search_client
+    
+        ask_approach = RetrieveThenReadApproach(
             search_client=search_client,
             openai_client=openai_client,
-            blob_container_client=blob_container_client,
             auth_helper=auth_helper,
-            vision_endpoint=AZURE_VISION_ENDPOINT,
-            vision_token_provider=token_provider,
             chatgpt_model=OPENAI_CHATGPT_MODEL,
             chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
-            gpt4v_deployment=AZURE_OPENAI_GPT4V_DEPLOYMENT,
-            gpt4v_model=AZURE_OPENAI_GPT4V_MODEL,
             embedding_model=OPENAI_EMB_MODEL,
             embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
             embedding_dimensions=OPENAI_EMB_DIMENSIONS,
@@ -717,6 +801,78 @@ async def setup_clients():
             query_language=AZURE_SEARCH_QUERY_LANGUAGE,
             query_speller=AZURE_SEARCH_QUERY_SPELLER,
         )
+        ask_approaches[geo_location] = ask_approach
+
+        chat_approach = ChatReadRetrieveReadApproach(
+            search_client=search_client,
+            openai_client=openai_client,
+            auth_helper=auth_helper,
+            chatgpt_model=OPENAI_CHATGPT_MODEL,
+            chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
+            embedding_model=OPENAI_EMB_MODEL,
+            embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
+            embedding_dimensions=OPENAI_EMB_DIMENSIONS,
+            sourcepage_field=KB_FIELDS_SOURCEPAGE,
+            content_field=KB_FIELDS_CONTENT,
+            query_language=AZURE_SEARCH_QUERY_LANGUAGE,
+            query_speller=AZURE_SEARCH_QUERY_SPELLER,
+        )
+        chat_approaches[geo_location] = chat_approach
+
+        if USE_GPT4V:
+            current_app.logger.info("USE_GPT4V is true, setting up GPT4V approach")
+            if not AZURE_OPENAI_GPT4V_MODEL:
+                raise ValueError("AZURE_OPENAI_GPT4V_MODEL must be set when USE_GPT4V is true")
+            token_provider = get_bearer_token_provider(azure_credential, "https://cognitiveservices.azure.com/.default")
+
+            ask_vision_approach = RetrieveThenReadVisionApproach(
+                search_client=search_client,
+                openai_client=openai_client,
+                blob_container_client=blob_container_client,
+                auth_helper=auth_helper,
+                vision_endpoint=AZURE_VISION_ENDPOINT,
+                vision_token_provider=token_provider,
+                gpt4v_deployment=AZURE_OPENAI_GPT4V_DEPLOYMENT,
+                gpt4v_model=AZURE_OPENAI_GPT4V_MODEL,
+                embedding_model=OPENAI_EMB_MODEL,
+                embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
+                embedding_dimensions=OPENAI_EMB_DIMENSIONS,
+                sourcepage_field=KB_FIELDS_SOURCEPAGE,
+                content_field=KB_FIELDS_CONTENT,
+                query_language=AZURE_SEARCH_QUERY_LANGUAGE,
+                query_speller=AZURE_SEARCH_QUERY_SPELLER,
+            )
+            ask_vision_approaches[geo_location] = ask_vision_approach
+
+            chat_vision_approach = ChatReadRetrieveReadVisionApproach(
+                search_client=search_client,
+                openai_client=openai_client,
+                blob_container_client=blob_container_client,
+                auth_helper=auth_helper,
+                vision_endpoint=AZURE_VISION_ENDPOINT,
+                vision_token_provider=token_provider,
+                chatgpt_model=OPENAI_CHATGPT_MODEL,
+                chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
+                gpt4v_deployment=AZURE_OPENAI_GPT4V_DEPLOYMENT,
+                gpt4v_model=AZURE_OPENAI_GPT4V_MODEL,
+                embedding_model=OPENAI_EMB_MODEL,
+                embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
+                embedding_dimensions=OPENAI_EMB_DIMENSIONS,
+                sourcepage_field=KB_FIELDS_SOURCEPAGE,
+                content_field=KB_FIELDS_CONTENT,
+                query_language=AZURE_SEARCH_QUERY_LANGUAGE,
+                query_speller=AZURE_SEARCH_QUERY_SPELLER,
+            )
+            chat_vision_approaches[geo_location] = chat_vision_approach
+
+    current_app.config["CONFIG_SEARCH_CLIENTS"] = search_clients
+    current_app.config["CONFIG_ASK_APPROACHES"] = ask_approaches
+    current_app.config["CONFIG_CHAT_APPROACHES"] = chat_approaches
+    if USE_GPT4V:
+        current_app.config["CONFIG_ASK_VISION_APPROACHES"] = ask_vision_approaches
+        current_app.config["CONFIG_CHAT_VISION_APPROACHES"] = chat_vision_approaches
+
+    # multi-index-geo changes - ends
 
 
 @bp.after_app_serving

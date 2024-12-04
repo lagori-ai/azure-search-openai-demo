@@ -3,16 +3,36 @@ const BACKEND_URI = "";
 import { ChatAppResponse, ChatAppResponseOrError, ChatAppRequest, Config, SimpleAPIResponse, HistoryListApiResponse, HistroyApiResponse } from "./models";
 import { useLogin, getToken, isUsingAppServicesLogin } from "../authConfig";
 
+// multi-index-geo changes - begins
+// export async function getHeaders(idToken: string | undefined): Promise<Record<string, string>> {
+//     // If using login and not using app services, add the id token of the logged in account as the authorization
+//     if (useLogin && !isUsingAppServicesLogin) {
+//         if (idToken) {
+//             return { Authorization: `Bearer ${idToken}` };
+//         }
+//     }
+
+//     return {};
+// }
+
 export async function getHeaders(idToken: string | undefined): Promise<Record<string, string>> {
-    // If using login and not using app services, add the id token of the logged in account as the authorization
+    // Hardcoded x-geo-location value
+    const geoLocation = "us";
+
+    // If using login and not using app services, add the id token of the logged-in account as the authorization
     if (useLogin && !isUsingAppServicesLogin) {
         if (idToken) {
-            return { Authorization: `Bearer ${idToken}` };
+            return {
+                Authorization: `Bearer ${idToken}`,
+                "x-geo-location": geoLocation
+            };
         }
     }
 
-    return {};
+    // Default headers with x-geo-location
+    return { "x-geo-location": geoLocation };
 }
+// multi-index-geo changes - ends
 
 export async function configApi(): Promise<Config> {
     const response = await fetch(`${BACKEND_URI}/config`, {
