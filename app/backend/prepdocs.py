@@ -264,10 +264,10 @@ async def main(strategy_map: dict, setup_index: bool = True):
         logger.info(f"Processing location: {location}")
         if setup_index:
             await strategy.setup()
-        tasks.append(strategy.run())
-
+        # tasks.append(strategy.run())
+        await strategy.run()
     # Run all tasks concurrently
-    await asyncio.gather(*tasks)
+    # await asyncio.gather(*tasks)
 
 
 
