@@ -17,7 +17,7 @@ import { useLogin, getToken, isUsingAppServicesLogin } from "../authConfig";
 
 export async function getHeaders(idToken: string | undefined): Promise<Record<string, string>> {
     // Hardcoded x-geo-location value
-    const geoLocation = "eu";
+    const geoLocation = "asia";
 
     // If using login and not using app services, add the id token of the logged-in account as the authorization
     if (useLogin && !isUsingAppServicesLogin) {
