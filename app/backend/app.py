@@ -177,7 +177,8 @@ async def ask(auth_claims: Dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
-    x_geo_location = request.headers.get("x-geo-location", "default") # multi-index-geo changes 
+    # x_geo_location = request.headers.get("x-geo-location", "default") # multi-index-geo changes
+    x_geo_location = os.getenv("GEO_LOCATION", "asia")               # multi-index-geo changes
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
     
@@ -229,7 +230,8 @@ async def chat(auth_claims: Dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
-    x_geo_location = request.headers.get("x-geo-location", "default") # multi-index-geo changes
+    # x_geo_location = request.headers.get("x-geo-location", "default") # multi-index-geo changes
+    x_geo_location = os.getenv("GEO_LOCATION", "asia")               # multi-index-geo changes
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
 
@@ -276,7 +278,8 @@ async def chat_stream(auth_claims: Dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
-    x_geo_location = request.headers.get("x-geo-location", "default") # multi-index-geo changes
+    # x_geo_location = request.headers.get("x-geo-location", "default") # multi-index-geo changes
+    x_geo_location = os.getenv("GEO_LOCATION", "asia")               # multi-index-geo changes
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
     

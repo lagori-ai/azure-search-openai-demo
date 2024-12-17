@@ -402,6 +402,7 @@ var appEnvVariables = {
   USE_LOCAL_PDF_PARSER: useLocalPdfParser
   USE_LOCAL_HTML_PARSER: useLocalHtmlParser
   RUNNING_IN_PRODUCTION: 'true'
+  GEO_LOCATION: 'us' //multi-index-geo changes
 }
 
 // App Service for the web application (Python Quart app with JS frontend)

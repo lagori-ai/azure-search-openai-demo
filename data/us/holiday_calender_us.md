@@ -1,4 +1,4 @@
-The United States observes 11 federal holidays each year, during which most federal institutions close, and federal employees receive paid time off. In 2024 and 2025, these holidays are scheduled as follows:
+The United States observes 11 federal holidays  each year, during which most federal institutions close, and federal employees receive paid time off. In 2024 and 2025, these holidays are scheduled as follows:
 
 **2024 Federal Holidays**
 

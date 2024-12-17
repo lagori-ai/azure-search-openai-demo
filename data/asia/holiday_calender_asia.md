@@ -1,6 +1,6 @@
 India's public holidays encompass a diverse array of cultural, religious, and national observances, varying across states and regions. The Central Government classifies these holidays into **Gazetted Holidays** (mandatory nationwide) and **Restricted Holidays** (optional, varying by state and institution). Below is a consolidated list of Gazetted Holidays for 2024 and 2025:
 
-**Gazetted Holidays in India for 2024**
+**Gazetted Holidays in  India for 2024**
 
 | Date           | Day           | Holiday Name                          |
 |----------------|---------------|---------------------------------------|

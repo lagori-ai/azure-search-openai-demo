@@ -16,7 +16,7 @@ The Netherlands observes several public holidays each year, during which schools
 | December 25    | Wednesday     | Christmas Day *(Eerste Kerstdag)*     |
 | December 26    | Thursday      | Boxing Day *(Tweede Kerstdag)*        |
 
-**Public Holidays in the Netherlands for 2025**
+**Public Holidays in the Netherlands  for 2025**
 
 | Date           | Day           | Holiday Name                          |
 |----------------|---------------|---------------------------------------|
